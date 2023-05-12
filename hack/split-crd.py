@@ -34,7 +34,7 @@ def read_file(filename, mode='r'):
 # write data to file
 def write_file(filename, data, mode='w'):
     with open(filename, mode) as f:
-        logging.debug("Writing %s of data to %s" % (len(data), filename))
+        logging.debug(f"Writing {len(data)} of data to {filename}")
         try:
             f.write(str(data, 'utf-8'))
         except TypeError:
@@ -56,7 +56,7 @@ def create_dir(path):
             logging.info("Target path \"%s\" already exist" % path)
             return path
         else:
-            logging.fatal("Can not create dir, error is: %s" % str(e))
+            logging.fatal(f"Can not create dir, error is: {str(e)}")
             exit(e.errno)
     return None
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
             format='[%(levelname)s] %(message)s (at %(filename)s:%(lineno)d in %(funcName)s).',
             level=logging.DEBUG)
         logging.info("Debug logging enabled")
-        logging.debug("Input arguments are: %s" % args)
+        logging.debug(f"Input arguments are: {args}")
     else:
         logging.basicConfig(
             format='[%(levelname)s] %(message)s.', level=logging.INFO)
@@ -98,30 +98,30 @@ if __name__ == "__main__":
         combined_crd = yaml.load_all(
             read_file(args.input), Loader=yaml.FullLoader)
     except Exception as e:
-        logging.fatal("error reading CRD file: %s" % str(e))
+        logging.fatal(f"error reading CRD file: {str(e)}")
         exit(1)
 
     for crd in combined_crd:
         try:
             _name = crd['metadata']['name']
-            logging.info("Read CRD %s" % _name)
+            logging.info(f"Read CRD {_name}")
         except KeyError:
-            logging.error("Error parsing CRD, ignore it: %s" % str(e))
+            logging.error(f"Error parsing CRD, ignore it: {str(e)}")
             continue
 
         # write the CRD to file
         try:
             _crd = yaml.dump(crd, indent=2, Dumper=MyDumper, default_flow_style=False)
         except Exception as e:
-            logging.fatal("error reformating the CRD %s: %s" % (_name, str(e)))
+            logging.fatal(f"error reformating the CRD {_name}: {str(e)}")
             exit(1)
 
         try:
-            _path = os.path.join(args.output, "%s.crd.yaml" % _name)
+            _path = os.path.join(args.output, f"{_name}.crd.yaml")
             write_file(_path, _crd)
-            logging.info("Write CRD %s to file %s" % (_name, _path))
+            logging.info(f"Write CRD {_name} to file {_path}")
         except Exception as e:
-            logging.error("Error writing CRD, ignore it: %s" % str(e))
+            logging.error(f"Error writing CRD, ignore it: {str(e)}")
             continue
 
     logging.info("Done")
